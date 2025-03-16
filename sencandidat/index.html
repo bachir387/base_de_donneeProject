@@ -2,111 +2,132 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Plateforme des candidats</title>
+  <title>Plateforme des Candidats</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <style>
-    /* Réinitialisation basique */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      line-height: 1.6;
-    }
-    /* Navbar */
-    .navbar {
+    .navbar-custom {
       background-color: #007bff;
+    }
+    .navbar-custom .navbar-brand, .navbar-custom .nav-link {
       color: #fff;
-      padding: 10px 20px;
+    }
+    .hero {
+      background: url('dakar-senegal-gardes-presidentielles.jpg') center/cover no-repeat;
+      min-height: 400px;
+      color: #fff;
       display: flex;
+      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      justify-content: space-between;
-    }
-    .navbar h1 {
-      font-size: 1.5em;
-    }
-    .navbar ul {
-      list-style: none;
-      display: flex;
-    }
-    .navbar ul li {
-      margin-left: 20px;
-    }
-    .navbar ul li a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      transition: color 0.3s;
-    }
-    .navbar ul li a:hover {
-      color: #dcdcdc;
-    }
-    /* Main content */
-    .container {
-      max-width: 1000px;
-      margin: 30px auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       text-align: center;
+      position: relative;
     }
-    .container h2 {
-      margin-bottom: 20px;
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .hero h1, .hero p, .hero a {
+      position: relative;
+      z-index: 2;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+    .hero p {
+      font-size: 1.3rem;
+      max-width: 700px;
+    }
+    .hero .btn {
+      font-size: 1.2rem;
+      padding: 12px 24px;
+    }
+    .card {
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    .card-title i {
+      font-size: 2rem;
+      margin-bottom: 10px;
       color: #007bff;
     }
-    .container p {
-      font-size: 1.1em;
-      margin-bottom: 20px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 12px 25px;
-      margin: 10px;
-      background-color: #007bff;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 4px;
-      transition: background-color 0.3s;
-    }
-    .btn:hover {
-      background-color: #0056b3;
-    }
-    /* Footer */
     footer {
-      background-color: #333;
+      background: #007bff;
       color: #fff;
       text-align: center;
       padding: 15px 0;
-      position: fixed;
-      width: 100%;
-      bottom: 0;
+      margin-top: 30px;
     }
   </style>
 </head>
-<body>
-  <!-- Navbar -->
-  <nav class="navbar">
-    <h1>Plateforme des candidats</h1>
-    <ul>
-      <li><a href="login_candidate.html">Se connecter</a></li>
-    </ul>
-  </nav>
+<body class="bg-light">
 
-  <!-- Contenu principal -->
-  <div class="container">
-    <h2>Bienvenue sur la Plateforme des Candidats</h2>
-    <p>Cette plateforme vous permet de vous connecter et de consulter vos  parrainages en quelques étapes simples.</p>
-    <p>Pour commencer, cliquez sur le lien "Se connecter" pour acceder a  votre compte</p>
-    <a href="login_candidate.html" class="btn">Se connecter</a>
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Plateforme Candidats</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="login_candidate.html">Se connecter</a></li>
+      </ul>
+    </div>
   </div>
+</nav>
 
-  <!-- Footer -->
-  <footer>
-    <p>&copy; 2025 Plateforme des Candidats - Tous droits réservés</p>
-  </footer>
+<div class="hero d-flex">
+  <div class="container text-white">
+    <h1>Bienvenue sur la Plateforme des Candidats</h1>
+    <p>Connectez-vous pour suivre vos parrainages et gérer votre campagne en toute simplicité.</p>
+    <a href="login_candidate.html" class="btn btn-warning text-dark fw-bold mt-3">Se connecter</a>
+  </div>
+</div>
+
+<div class="container my-5 bg-white p-4 rounded shadow">
+  <h2 class="text-center text-primary mb-4">Nos Fonctionnalités</h2>
+  <div class="row">
+    <div class="col-md-4 d-flex align-items-stretch">
+      <div class="card text-center mb-4 w-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-chart-line"></i> Suivi des parrainages</h5>
+          <p class="card-text">Visualisez l'évolution journalière de vos parrainages en temps réel.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 d-flex align-items-stretch">
+      <div class="card text-center mb-4 w-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-user-edit"></i> Gestion de votre profil</h5>
+          <p class="card-text">Modifiez vos informations et suivez vos statistiques personnelles.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 d-flex align-items-stretch">
+      <div class="card text-center mb-4 w-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-headset"></i> Support et Assistance</h5>
+          <p class="card-text">Besoin d'aide ? Contactez notre équipe dédiée à votre accompagnement.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2025 Plateforme des Candidats - Tous droits réservés</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

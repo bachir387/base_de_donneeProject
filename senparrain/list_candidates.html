@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Liste des Candidats - Parrainage</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
-    body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 20px; }
-    .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    h1 { text-align: center; }
+    .navbar-custom { background-color: #333; }
+    .navbar-custom .navbar-brand,
+    .navbar-custom .nav-link { color: #fff; }
     .candidate-card {
       border: 1px solid #ccc;
       border-radius: 4px;
@@ -14,128 +17,153 @@
       margin-bottom: 15px;
       display: flex;
       align-items: center;
-      cursor: pointer;
       transition: background 0.3s;
+      cursor: pointer;
     }
     .candidate-card:hover { background: #e6f7ff; }
     .candidate-img {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      margin-right: 20px;
-      object-fit: cover;
+      width: 80px; height: 80px; border-radius: 50%; margin-right: 20px; object-fit: cover;
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <h1>Liste des Candidats</h1>
-    <div id="candidateList"></div>
-  </div>
+<body class="bg-light">
 
-  <script>
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert("Vous devez être connecté.");
-      window.location.href = "login_parrain.html";
-    }
-    
-    function fetchCandidates() {
-      fetch('http://localhost:8000/candidats/list_candidates.php', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      })
-      .then(response => response.json())
-      .then(data => {
-        const candidateList = document.getElementById('candidateList');
-        candidateList.innerHTML = '';
-        data.forEach(candidate => {
-          const card = document.createElement('div');
-          card.className = 'candidate-card';
-          card.innerHTML = `
-            <img class="candidate-img" src="${candidate.photo ? candidate.photo : 'default.png'}" alt="${candidate.nom}">
-            <div>
-              <h3>${candidate.nom} ${candidate.prenom}</h3>
-              <p>Parti Politique : ${candidate.parti_politique || 'Non défini'}</p>
-            </div>
-          `;
-          card.addEventListener('click', () => {
-            if (confirm("Confirmez-vous le parrainage de ce candidat ?")) {
-              initiateSponsorship(candidate.id);
-            }
-          });
-          candidateList.appendChild(card);
-        });
-      })
-      .catch(err => {
-        console.error("Erreur:", err);
-        alert("Erreur lors de la récupération des candidats.");
-      });
-    }
-    
-    function initiateSponsorship(candidateId) {
-      const sponsorEmail = localStorage.getItem('sponsorEmail');
-      if (!sponsorEmail) {
-        alert("Votre email de parrain n'est pas disponible. Veuillez vous reconnecter.");
-        return;
-      }
-      fetch('http://localhost:8000/parrainages/register_sponsorship.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({
-          numero_electeur: localStorage.getItem('numero_electeur'),
-          numero_cin: localStorage.getItem('numero_cin'),
-          code_auth: localStorage.getItem('code_auth'),
-          candidate_id: candidateId
-          // Pas de sponsorship_code pour initier
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert(data.message + "\nVérifiez votre email pour le code de validation.");
-          const code = prompt("Entrez le code de validation reçu par email :");
-          if (code) {
-            confirmSponsorship(candidateId, code);
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">Parrain Dashboard</a>
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <button class="btn btn-danger nav-link" id="logoutBtn">Déconnexion</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container bg-white p-4 rounded shadow">
+  <h2 class="text-primary mb-4">Liste des Candidats</h2>
+  <div id="candidateList"></div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-3 mt-4">
+  <p class="mb-0">&copy; 2025 Plateforme des Parrains - Tous droits réservés</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert("Vous devez être connecté.");
+    window.location.href = "login_parrain.html";
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('sponsorEmail');
+    window.location.href = 'index.html';
+  });
+
+  function fetchCandidates() {
+    fetch('http://localhost:8000/candidats/list_candidates.php', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(response => response.json())
+    .then(data => {
+      const candidateList = document.getElementById('candidateList');
+      candidateList.innerHTML = '';
+      data.forEach(candidate => {
+        const card = document.createElement('div');
+        card.className = 'candidate-card';
+        card.innerHTML = `
+          <img class="candidate-img" src="${candidate.photo || 'default.png'}" alt="${candidate.nom}">
+          <div>
+            <h5>${candidate.nom} ${candidate.prenom}</h5>
+            <p class="mb-0">Parti Politique : ${candidate.parti_politique || 'Non défini'}</p>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          if (confirm("Confirmez-vous le parrainage de ce candidat ?")) {
+            initiateSponsorship(candidate.id);
           }
-        } else {
-          alert(data.message);
+        });
+        candidateList.appendChild(card);
+      });
+    })
+    .catch(err => {
+      console.error("Erreur:", err);
+      alert("Erreur lors de la récupération des candidats.");
+    });
+  }
+
+  function initiateSponsorship(candidateId) {
+    const sponsorEmail = localStorage.getItem('sponsorEmail');
+    if (!sponsorEmail) {
+      alert("Votre email de parrain n'est pas disponible. Veuillez vous reconnecter.");
+      return;
+    }
+    fetch('http://localhost:8000/parrainages/register_sponsorship.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        numero_electeur: localStorage.getItem('numero_electeur'),
+        numero_cin: localStorage.getItem('numero_cin'),
+        code_auth: localStorage.getItem('code_auth'),
+        candidate_id: candidateId
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert(data.message + "\nVérifiez votre email pour le code de validation.");
+        const code = prompt("Entrez le code de validation reçu par email :");
+        if (code) {
+          confirmSponsorship(candidateId, code);
         }
-      })
-      .catch(err => {
-        console.error("Erreur:", err);
-        alert("Erreur lors de l'initiation du parrainage.");
-      });
-    }
-    
-    function confirmSponsorship(candidateId, code) {
-      fetch('http://localhost:8000/parrainages/register_sponsorship.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({
-          numero_electeur: localStorage.getItem('numero_electeur'),
-          numero_cin: localStorage.getItem('numero_cin'),
-          code_auth: localStorage.getItem('code_auth'),
-          candidate_id: candidateId,
-          sponsorship_code: code
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
+      } else {
         alert(data.message);
+      }
+    })
+    .catch(err => {
+      console.error("Erreur:", err);
+      alert("Erreur lors de l'initiation du parrainage.");
+    });
+  }
+
+  function confirmSponsorship(candidateId, code) {
+    fetch('http://localhost:8000/parrainages/register_sponsorship.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        numero_electeur: localStorage.getItem('numero_electeur'),
+        numero_cin: localStorage.getItem('numero_cin'),
+        code_auth: localStorage.getItem('code_auth'),
+        candidate_id: candidateId,
+        sponsorship_code: code
       })
-      .catch(err => {
-        console.error("Erreur:", err);
-        alert("Erreur lors de la confirmation du parrainage.");
-      });
-    }
-    
-    window.onload = fetchCandidates;
-  </script>
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message);
+    })
+    .catch(err => {
+      console.error("Erreur:", err);
+      alert("Erreur lors de la confirmation du parrainage.");
+    });
+  }
+
+  window.onload = fetchCandidates;
+</script>
 </body>
 </html>

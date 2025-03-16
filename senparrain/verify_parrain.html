@@ -3,77 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <title>Vérification d'Identité - Parrainage</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <!-- Font Awesome pour les icônes -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 20px; }
-    .container { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    h1 { text-align: center; }
-    label { display: block; margin-top: 10px; }
-    input { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; width: 100%; padding: 10px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
-    .error { background: #f8d7da; color: #721c24; }
-    .success { background: #d4edda; color: #155724; }
-    a.btn { display: inline-block; padding: 10px 15px; background: #28a745; color: #fff; text-decoration: none; border-radius: 4px; margin-top: 15px; }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    .navbar-custom {
+      background-color: #333;
+      width: 100%;
+    }
+    .navbar-custom .navbar-brand {
+      color: #fff;
+    }
+    main {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .form-container {
+      width: 100%;
+      max-width: 500px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    fieldset {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    legend {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #333;
+      padding: 0 10px;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    .input-group i {
+      margin-right: 10px;
+      color: #333;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.1em;
+    }
+    #parrainInfo {
+      display: none;
+      margin-top: 20px;
+    }
+    #parrainInfo h4 {
+      margin-bottom: 15px;
+    }
+    .btn-success {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.1em;
+    }
+    footer {
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      padding: 10px 0;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Vérification d'Identité</h1>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">Plateforme Parrains</a>
+  </div>
+</nav>
+
+<!-- Contenu principal -->
+<main>
+  <div class="form-container">
+    <h2 class="text-center text-primary mb-4">Vérification d'Identité</h2>
     <div id="message"></div>
     <form id="verifyForm">
-      <label>Numéro d’électeur :</label>
-      <input type="text" name="numero_electeur" required>
-      <label>Numéro de CIN :</label>
-      <input type="text" name="numero_cin" required>
-      <label>Code d'authentification :</label>
-      <input type="text" name="code_auth" required>
-      <button type="submit">Vérifier</button>
+      <fieldset>
+        <legend>Informations de vérification</legend>
+        <div class="input-group">
+          <i class="fas fa-id-card"></i>
+          <input type="text" name="numero_electeur" class="form-control" placeholder="Numéro d’électeur" required>
+        </div>
+        <div class="input-group">
+          <i class="fas fa-id-badge"></i>
+          <input type="text" name="numero_cin" class="form-control" placeholder="Numéro de CIN" required>
+        </div>
+        <div class="input-group">
+          <i class="fas fa-key"></i>
+          <input type="text" name="code_auth" class="form-control" placeholder="Code d'authentification" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Vérifier</button>
+      </fieldset>
     </form>
-    <div id="parrainInfo" style="display:none; margin-top:20px;">
-      <h3>Vos informations :</h3>
+    <div id="parrainInfo" class="mt-3">
+      <h4>Vos informations :</h4>
       <p id="infoDisplay"></p>
-      <a href="list_candidates.html" class="btn">Voir la liste des candidats</a>
+      <a href="list_candidates.html" class="btn btn-success">Voir la liste des candidats</a>
     </div>
   </div>
+</main>
 
-  <script>
-    const form = document.getElementById('verifyForm');
-    const messageDiv = document.getElementById('message');
-    const parrainInfoDiv = document.getElementById('parrainInfo');
-    const infoDisplay = document.getElementById('infoDisplay');
+<!-- Footer -->
+<footer>
+  <p class="mb-0">&copy; 2025 Plateforme des Parrains - Tous droits réservés</p>
+</footer>
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const formData = new FormData(form);
-      const data = {};
-      formData.forEach((value, key) => data[key] = value.trim());
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const form = document.getElementById('verifyForm');
+  const messageDiv = document.getElementById('message');
+  const parrainInfoDiv = document.getElementById('parrainInfo');
+  const infoDisplay = document.getElementById('infoDisplay');
 
-      fetch('http://localhost:8000/parrainages/register_sponsorship.php', {
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    messageDiv.innerHTML = '';
+    const data = {};
+    new FormData(form).forEach((value, key) => data[key] = value.trim());
+
+    try {
+      const response = await fetch('http://localhost:8000/parrainages/register_sponsorship.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          numero_electeur: data.numero_electeur,
-          numero_cin: data.numero_cin,
-          code_auth: data.code_auth
-        })
-      })
-      .then(response => response.json())
-      .then(res => {
-        messageDiv.innerHTML = `<div class="message ${res.success ? 'success' : 'error'}">${res.message}</div>`;
-        if (res.success && res.data) {
-          localStorage.setItem('numero_electeur', data.numero_electeur);
-          localStorage.setItem('numero_cin', data.numero_cin);
-          localStorage.setItem('code_auth', data.code_auth);
-          infoDisplay.innerHTML = `Nom : ${res.data.nom}<br>Prénom : ${res.data.prenom}<br>Date de naissance : ${res.data.date_naissance}<br>Bureau de vote : ${res.data.bureau_vote}`;
-          parrainInfoDiv.style.display = 'block';
-          form.style.display = 'none';
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        messageDiv.innerHTML = `<div class="message error">Erreur lors de la vérification.</div>`;
+        body: JSON.stringify(data)
       });
-    });
-  </script>
+      const res = await response.json();
+      messageDiv.innerHTML = `<div class="alert alert-${res.success ? 'success' : 'danger'}">${res.message}</div>`;
+      if (res.success && res.data) {
+        localStorage.setItem('numero_electeur', data.numero_electeur);
+        localStorage.setItem('numero_cin', data.numero_cin);
+        localStorage.setItem('code_auth', data.code_auth);
+        infoDisplay.innerHTML = `
+          <strong>Nom :</strong> ${res.data.nom}<br>
+          <strong>Prénom :</strong> ${res.data.prenom}<br>
+          <strong>Date de naissance :</strong> ${res.data.date_naissance}<br>
+          <strong>Bureau de vote :</strong> ${res.data.bureau_vote}
+        `;
+        parrainInfoDiv.style.display = 'block';
+        form.style.display = 'none';
+      }
+    } catch (err) {
+      messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de la vérification.</div>`;
+    }
+  });
+</script>
 </body>
 </html>

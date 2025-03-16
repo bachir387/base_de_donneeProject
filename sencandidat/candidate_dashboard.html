@@ -3,45 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <title>Tableau de Bord Candidat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <!-- Font Awesome pour les icônes -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 0;
+      background-color: #f8f9fa;
     }
-    .navbar {
-      background-color: #007bff;
+    .navbar-custom {
+      background-color: #333;
+    }
+    .navbar-custom .navbar-brand,
+    .navbar-custom .nav-link {
       color: #fff;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .navbar h1 {
-      margin: 0;
-      font-size: 1.5em;
-    }
-    .navbar button {
-      background: #dc3545;
-      border: none;
-      color: #fff;
-      padding: 10px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .container {
-      max-width: 800px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #007bff;
-      margin-bottom: 20px;
     }
     #message {
       text-align: center;
@@ -49,135 +27,210 @@
       padding: 10px;
       border-radius: 4px;
     }
-    #message.error {
-      background: #f8d7da;
-      color: #721c24;
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
     }
-    #message.success {
-      background: #d4edda;
-      color: #155724;
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
     }
-    #summary {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 1.2em;
+    .card-header {
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 10px 10px 0 0;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
+    .card-body {
+      padding: 20px;
     }
-    table th, table td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center;
+    .table {
+      margin-top: 15px;
     }
-    table th {
-      background: #007bff;
+    .table thead {
+      background-color: #007bff;
       color: #fff;
     }
-    footer {
-      background: #333;
-      color: #fff;
-      text-align: center;
-      padding: 15px 0;
-      position: fixed;
-      width: 100%;
-      bottom: 0;
+    .btn-danger {
+      background-color: #dc3545;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+    .icon {
+      margin-right: 10px;
     }
   </style>
 </head>
 <body>
-  <!-- Barre de navigation -->
-  <nav class="navbar">
-    <h1>Tableau de Bord Candidat</h1>
-    <button id="logoutBtn">Déconnexion</button>
-  </nav>
 
-  <!-- Contenu principal -->
-  <div class="container">
-    <h2>Évolution Journalière de Mes Parrainages</h2>
-
-    <div id="message"></div>
-
-    <div id="summary">
-      Total Parrainages : <span id="totalCount">0</span>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="candidate_dashboard.html">
+      <i class="fas fa-tachometer-alt icon"></i> Tableau de Bord Candidat
+    </a>
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <button class="btn btn-danger" id="logoutBtn">
+            <i class="fas fa-sign-out-alt icon"></i> Déconnexion
+          </button>
+        </li>
+      </ul>
     </div>
-
-    <table id="dailyTable">
-      <thead>
-         <tr>
-            <th>Date</th>
-            <th>Nombre de Parrainages</th>
-         </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
   </div>
+</nav>
 
-  <footer>
-    <p>&copy; 2025 Plateforme Candidat - Tous droits réservés</p>
-  </footer>
+<!-- Contenu principal -->
+<div class="container mt-4">
+  <h2 class="text-center text-primary mb-4">
+    <i class="fas fa-chart-line icon"></i> Évolution Journalière de Mes Parrainages
+  </h2>
+  <div id="message"></div>
 
-  <script>
-    // Au chargement de la page, récupérer les statistiques
-    window.onload = function() {
-      fetchEvolution();
-    };
+  <!-- Section Stats + Graphique -->
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-chart-bar icon"></i> Graphique de mes parrainages</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="myChart" width="400" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-table icon"></i> Détails journaliers</h5>
+        </div>
+        <div class="card-body">
+          <p class="fs-5"><i class="fas fa-chart-pie icon"></i> Total Parrainages : <span id="totalCount" class="fw-bold">0</span></p>
+          <table class="table table-bordered" id="dailyTable">
+            <thead class="table-primary">
+              <tr>
+                <th><i class="fas fa-calendar-alt icon"></i> Date</th>
+                <th><i class="fas fa-users icon"></i> Nombre</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    // Déconnexion : supprimer le token et rediriger vers la page de connexion
-    document.getElementById('logoutBtn').addEventListener('click', function() {
-      localStorage.removeItem('token');
-      window.location.href = 'index.html';
-    });
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Vérifier le token
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login_candidate.html';
+  }
 
-    // Fonction pour récupérer l'évolution journalière des parrainages
-    function fetchEvolution() {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert("Vous devez être connecté.");
-        window.location.href = "login_candidate.html";
+  // Gestion du logout
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+  });
+
+  const messageDiv = document.getElementById('message');
+  const totalCountSpan = document.getElementById('totalCount');
+  const dailyTableBody = document.getElementById('dailyTable').querySelector('tbody');
+  let myChart = null;
+
+  // Fonction pour récupérer l'évolution journalière des parrainages
+  async function fetchEvolution() {
+    try {
+      const res = await fetch('http://sowpoulogroup.infinityfreeapp.com/api/parrainages/suivi_parrainages.php', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      // Gérer les erreurs
+      if (!data.success && data.message) {
+        messageDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
         return;
       }
 
-      fetch('http://localhost:8000/parrainages/suivi_parrainages.php', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (!data.success && data.message) {
-          // En cas d'erreur (token invalide, etc.)
-          document.getElementById('message').innerHTML = data.message;
-          document.getElementById('message').className = 'error';
-          return;
-        }
-        // Afficher le total de parrainages
-        document.getElementById('totalCount').innerText = data.total_parrainages || 0;
+      // Mettre à jour le total
+      totalCountSpan.textContent = data.total_parrainages || 0;
 
-        // Vider le tableau avant de le remplir
-        const tbody = document.getElementById('dailyTable').querySelector('tbody');
-        tbody.innerHTML = '';
+      // Vider le tableau
+      dailyTableBody.innerHTML = '';
+      // Préparer les données pour le graphique
+      const labels = [];
+      const values = [];
 
-        // Remplir le tableau avec les données journalières
-        data.evolution_daily.forEach(item => {
-          const tr = document.createElement('tr');
-          const tdDate = document.createElement('td');
-          tdDate.innerText = item.date;
-          const tdCount = document.createElement('td');
-          tdCount.innerText = item.count;
-          tr.appendChild(tdDate);
-          tr.appendChild(tdCount);
-          tbody.appendChild(tr);
-        });
-      })
-      .catch(error => {
-        console.error("Erreur lors de la récupération des parrainages :", error);
-        const msgDiv = document.getElementById('message');
-        msgDiv.innerHTML = "Erreur lors de la récupération des parrainages.";
-        msgDiv.className = 'error';
+      // Remplir le tableau + arrays
+      data.evolution_daily.forEach(item => {
+        const tr = document.createElement('tr');
+        const tdDate = document.createElement('td');
+        tdDate.innerText = item.date;
+        const tdCount = document.createElement('td');
+        tdCount.innerText = item.count;
+        tr.appendChild(tdDate);
+        tr.appendChild(tdCount);
+        dailyTableBody.appendChild(tr);
+
+        labels.push(item.date);
+        values.push(item.count);
       });
+
+      // Construire ou mettre à jour le graphique
+      buildChart(labels, values);
+
+    } catch (err) {
+      messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de la récupération des parrainages.</div>`;
     }
-  </script>
+  }
+
+  function buildChart(labels, values) {
+    const ctx = document.getElementById('myChart').getContext('2d');
+    if (myChart) {
+      myChart.destroy();
+    }
+    myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Parrainages journaliers',
+          data: values,
+          fill: false,
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          legend: {
+            display: true
+          }
+        }
+      }
+    });
+  }
+
+  // Au chargement
+  fetchEvolution();
+</script>
 </body>
 </html>
