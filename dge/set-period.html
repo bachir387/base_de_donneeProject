@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Définir la Période de Parrainage</title>
+  <!-- Inclure Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <style>
+    .navbar-custom {
+      background-color: #333;
+    }
+    .navbar-custom .navbar-brand,
+    .navbar-custom .nav-link {
+      color: #fff;
+    }
+  </style>
+</head>
+<body class="bg-light">
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="dashboard.html">DGE Dashboard</a>
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="upload-electors.html">Upload Electors</a></li>
+        <li class="nav-item"><a class="nav-link" href="add-candidate.html">Add Candidate</a></li>
+        <li class="nav-item"><a class="nav-link" href="candidates.html">List Candidates</a></li>
+        <li class="nav-item"><a class="nav-link" href="set-period.html">Set Period</a></li>
+        <li class="nav-item">
+          <button class="btn btn-danger nav-link" id="logoutBtn">Logout</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <h2>Définir une Période de Parrainage</h2>
+  <div id="message" class="mb-3"></div>
+
+  <!-- Formulaire pour définir la période -->
+  <form id="periodForm" class="mb-3">
+    <div class="mb-3">
+      <label for="dateDebut" class="form-label">Date Début :</label>
+      <input type="date" id="dateDebut" class="form-control" required />
+    </div>
+    <div class="mb-3">
+      <label for="dateFin" class="form-label">Date Fin :</label>
+      <input type="date" id="dateFin" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Définir la Période</button>
+  </form>
+
+  <hr />
+  <h3>Période Actuelle</h3>
+  <div id="currentPeriod" class="mb-3"></div>
+  <button id="deleteBtn" class="btn btn-danger" style="display:none;">Supprimer la Période</button>
+</div>
+
+<!-- Scripts Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Vérifier le token
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+  }
+
+  // Gestion du logout
+  const logoutBtn = document.getElementById('logoutBtn');
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+  });
+
+  const messageDiv = document.getElementById('message');
+  const periodForm = document.getElementById('periodForm');
+  const dateDebutInput = document.getElementById('dateDebut');
+  const dateFinInput = document.getElementById('dateFin');
+  const currentPeriodDiv = document.getElementById('currentPeriod');
+  const deleteBtn = document.getElementById('deleteBtn');
+
+  // 1. Récupérer la période actuelle
+  async function fetchCurrentPeriod() {
+    messageDiv.innerHTML = '';
+    currentPeriodDiv.innerHTML = '';
+    deleteBtn.style.display = 'none';
+
+    try {
+      const res = await fetch('http://localhost:8000/parrainages/get_parrainage_period.php', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success === false && data.message) {
+        // Aucune période
+        currentPeriodDiv.innerHTML = `<p>${data.message}</p>`;
+      } else if (data.id) {
+        // Période trouvée
+        currentPeriodDiv.innerHTML = `
+          <p><strong>Date Début:</strong> ${data.date_debut}</p>
+          <p><strong>Date Fin:</strong> ${data.date_fin}</p>
+          <p><em>Statut: ${data.status || 'N/A'}</em></p>
+        `;
+        deleteBtn.style.display = 'inline-block';
+      } else {
+        // Autre cas
+        currentPeriodDiv.innerHTML = `<p>Aucune période de parrainage définie.</p>`;
+      }
+    } catch (err) {
+      console.error(err);
+      messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de la récupération de la période de parrainage.</div>`;
+    }
+  }
+
+  fetchCurrentPeriod();
+
+  // 2. Définir une nouvelle période
+  periodForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    messageDiv.innerHTML = '';
+    try {
+      const date_debut = dateDebutInput.value;
+      const date_fin = dateFinInput.value;
+      const res = await fetch('http://localhost:8000/parrainages/set_parrainage_period.php', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ date_debut, date_fin })
+      });
+      const data = await res.json();
+      messageDiv.innerHTML = `<div class="alert alert-${data.success ? 'success' : 'danger'}">${data.message}</div>`;
+      if (data.success) {
+        // Réinitialiser
+        periodForm.reset();
+        fetchCurrentPeriod();
+      }
+    } catch (err) {
+      console.error(err);
+      messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de la définition de la période.</div>`;
+    }
+  });
+
+  // 3. Supprimer la période actuelle
+  deleteBtn.addEventListener('click', async () => {
+    messageDiv.innerHTML = '';
+    try {
+      const res = await fetch('http://localhost:8000/parrainages/delete_parrainage_period.php', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      messageDiv.innerHTML = `<div class="alert alert-${data.success ? 'success' : 'danger'}">${data.message}</div>`;
+      if (data.success) {
+        fetchCurrentPeriod();
+      }
+    } catch (err) {
+      console.error(err);
+      messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de la suppression de la période.</div>`;
+    }
+  });
+</script>
+</body>
+</html>

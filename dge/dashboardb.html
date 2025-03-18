@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>DGE - Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <style>
+    .navbar-custom { background-color: #333; }
+    .navbar-custom .navbar-brand, .navbar-custom .nav-link { color: #fff; }
+  </style>
+</head>
+<body class="bg-light">
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="dashboard.html">DGE Dashboard</a>
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="upload-electors.html">Upload Electors</a></li>
+        <li class="nav-item"><a class="nav-link" href="add-candidate.html">Add Candidate</a></li>
+        <li class="nav-item"><a class="nav-link" href="candidates.html">List Candidates</a></li>
+        <li class="nav-item"><a class="nav-link" href="set-period.html">Set Period</a></li>
+        <li class="nav-item"><button class="btn btn-danger nav-link" id="logoutBtn">Logout</button></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <h2>Dashboard</h2>
+  <div id="message"></div>
+  <div id="stats"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Vérifier le token
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+  }
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+  });
+
+  const messageDiv = document.getElementById('message');
+  const statsDiv = document.getElementById('stats');
+
+  // Ex: Récupérer des stats
+  async function fetchStats() {
+    try {
+      const res = await fetch('http://localhost:8000/electeurs/dashboard_stats.php', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (data.success) {
+        let html = `
+          <p><strong>Nombre total de parrains :</strong> ${data.total_parrains}</p>
+          <p><strong>Nombre total de candidats :</strong> ${data.total_candidates}</p>
+          <h3>Parrainages par candidat :</h3>
+        `;
+        if (data.sponsorship_stats && data.sponsorship_stats.length > 0) {
+          html += `<table class="table table-bordered"><thead><tr><th>Candidat</th><th>Nombre de parrainages</th></tr></thead><tbody>`;
+          data.sponsorship_stats.forEach(item => {
+            html += `<tr><td>${item.nom} ${item.prenom}</td><td>${item.total_parrainages}</td></tr>`;
+          });
+          html += `</tbody></table>`;
+        } else {
+          html += `<p>Aucun parrainage enregistré.</p>`;
+        }
+        statsDiv.innerHTML = html;
+      } else {
+        messageDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+      }
+    } catch (err) {
+      console.error(err);
+      messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de la récupération des statistiques.</div>`;
+    }
+  }
+
+  fetchStats();
+</script>
+</body>
+</html>

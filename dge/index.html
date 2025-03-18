@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Accueil - Gestion des Parrainages</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    .navbar-custom {
+      background-color: #333;
+    }
+    .navbar-custom .navbar-brand, .navbar-custom .nav-link {
+      color: #fff;
+    }
+    .hero {
+      background: url('public/dakar-senegal-gardes-presidentielles.jpg') center/cover no-repeat;
+      color: white;
+      text-align: center;
+      padding: 100px 20px;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .feature-card {
+      transition: transform 0.3s;
+    }
+    .feature-card:hover {
+      transform: scale(1.05);
+    }
+    .footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 15px;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">Gestion des Parrainages</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="login.html">Se Connecter</a></li>
+        <li class="nav-item"><a class="nav-link" href="dashboard.html">Tableau de Bord</a></li>
+        <li class="nav-item"><a class="nav-link" href="candidates.html">Candidats</a></li>
+        <li class="nav-item"><a class="nav-link" href="set-period.html">Définir Période</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="hero">
+  <h1>Bienvenue sur la plateforme de gestion des parrainages</h1>
+  <p>Simplifiez la gestion des candidatures et des parrainages avec notre solution.</p>
+  <a href="login.html" class="btn btn-primary mt-3">Commencer</a>
+</div>
+
+<!-- Features Section -->
+<div class="container my-5">
+  <div class="row text-center">
+    <div class="col-md-4">
+      <div class="card feature-card shadow p-3">
+        <img src="public/dge4.jpeg" class="card-img-top" alt="Upload électeurs">
+        <div class="card-body">
+          <h5 class="card-title">Importation d'électeurs</h5>
+          <p class="card-text">Chargez facilement la liste des électeurs pour une gestion simplifiée.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card feature-card shadow p-3">
+        <img src="public/Sans titre.jpeg" class="card-img-top" alt="Ajout de candidats">
+        <div class="card-body">
+          <h5 class="card-title">Ajout de candidats</h5>
+          <p class="card-text">Ajoutez et gérez les candidats en toute simplicité.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card feature-card shadow p-3">
+        <img src="public/dge4.jpeg" class="card-img-top" alt="Définition période">
+        <div class="card-body">
+          <h5 class="card-title">Période de Parrainage</h5>
+          <p class="card-text">Définissez et gérez la période de parrainage en un clic.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>© 2025 DGE | Contact: ats@sowpoulo.sn</p>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

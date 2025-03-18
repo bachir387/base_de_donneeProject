@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ajouter un Candidat</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <style>
+    .navbar-custom { background-color: #333; }
+    .navbar-custom .navbar-brand, .navbar-custom .nav-link { color: #fff; }
+  </style>
+</head>
+<body class="bg-light">
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="dashboard.html">DGE Dashboard</a>
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="upload-electors.html">Upload Electors</a></li>
+        <li class="nav-item"><a class="nav-link" href="add-candidate.html">Add Candidate</a></li>
+        <li class="nav-item"><a class="nav-link" href="candidates.html">List Candidates</a></li>
+        <li class="nav-item"><a class="nav-link" href="set-period.html">Set Period</a></li>
+        <li class="nav-item"><button class="btn btn-danger nav-link" id="logoutBtn">Logout</button></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <h2>Ajouter un Candidat</h2>
+  <div id="message" class="mb-3"></div>
+
+  <!-- Étape 1 -->
+  <form id="stepOneForm" class="mb-3">
+    <div class="mb-3">
+      <label for="numeroElecteur" class="form-label">Numéro d'électeur :</label>
+      <input type="text" id="numeroElecteur" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Vérifier</button>
+  </form>
+
+  <!-- Étape 2 -->
+  <div id="stepTwo" style="display:none;">
+    <h4>Informations de base du candidat</h4>
+    <p id="baseInfo"></p>
+
+    <h5>Compléter les informations</h5>
+    <form id="stepTwoForm">
+      <div class="mb-3">
+        <label for="email" class="form-label">Email :</label>
+        <input type="email" id="email" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label for="telephone" class="form-label">Téléphone :</label>
+        <input type="text" id="telephone" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <label for="parti_politique" class="form-label">Parti Politique :</label>
+        <input type="text" id="parti_politique" class="form-control" />
+      </div>
+      <div class="mb-3">
+        <label for="slogan" class="form-label">Slogan :</label>
+        <input type="text" id="slogan" class="form-control" />
+      </div>
+      <div class="mb-3">
+        <label for="photo" class="form-label">Photo (URL) :</label>
+        <input type="text" id="photo" class="form-control" />
+      </div>
+      <div class="mb-3">
+        <label for="url" class="form-label">URL :</label>
+        <input type="text" id="url" class="form-control" />
+      </div>
+      <button type="submit" class="btn btn-success">Ajouter le candidat</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+  });
+
+  const messageDiv = document.getElementById('message');
+  const stepOneForm = document.getElementById('stepOneForm');
+  const numeroElecteurInput = document.getElementById('numeroElecteur');
+  const stepTwo = document.getElementById('stepTwo');
+  const baseInfo = document.getElementById('baseInfo');
+  const stepTwoForm = document.getElementById('stepTwoForm');
+
+  let candidateDetails = null;  // infos de base renvoyées par l'API
+  let numeroElecteur = '';
+
+  // Étape 1 : Vérifier le numéro d'électeur
+  stepOneForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    messageDiv.innerHTML = '';
+    numeroElecteur = numeroElecteurInput.value;
+    try {
+      const res = await fetch('http://localhost:8000/candidats/add_candidate.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ numero_electeur: numeroElecteur })
+      });
+      const data = await res.json();
+      if (!data.success && data.candidate_details) {
+        // Passage à l'étape 2
+        candidateDetails = data.candidate_details;
+        stepOneForm.style.display = 'none';
+        stepTwo.style.display = 'block';
+        baseInfo.innerHTML = `
+          <strong>Nom :</strong> ${candidateDetails.nom}<br/>
+          <strong>Prénom :</strong> ${candidateDetails.prenom}<br/>
+          <strong>Date de naissance :</strong> ${candidateDetails.date_naissance}
+        `;
+      } else {
+        messageDiv.innerHTML = `<div class="alert alert-info">${data.message}</div>`;
+      }
+    } catch (err) {
+      messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de la vérification du numéro d'électeur.</div>`;
+    }
+  });
+
+  // Étape 2 : Ajouter le candidat
+  stepTwoForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    messageDiv.innerHTML = '';
+    const email = document.getElementById('email').value;
+    const telephone = document.getElementById('telephone').value;
+    const parti_politique = document.getElementById('parti_politique').value;
+    const slogan = document.getElementById('slogan').value;
+    const photo = document.getElementById('photo').value;
+    const url = document.getElementById('url').value;
+
+    try {
+      const res = await fetch('http://localhost:8000/candidats/add_candidate.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          numero_electeur: numeroElecteur,
+          email,
+          telephone,
+          parti_politique,
+          slogan,
+          photo,
+          url
+        })
+      });
+      const data = await res.json();
+      messageDiv.innerHTML = `<div class="alert alert-${data.success ? 'success' : 'danger'}">${data.message}</div>`;
+      if (data.success) {
+        // Réinitialiser
+        stepOneForm.style.display = 'block';
+        stepTwo.style.display = 'none';
+        stepOneForm.reset();
+        stepTwoForm.reset();
+      }
+    } catch (err) {
+      messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de l'ajout du candidat.</div>`;
+    }
+  });
+</script>
+</body>
+</html>

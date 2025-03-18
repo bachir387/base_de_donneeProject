@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Détails du Candidat</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <style>
+    .navbar-custom { background-color: #333; }
+    .navbar-custom .navbar-brand, .navbar-custom .nav-link { color: #fff; }
+    .candidate-photo {
+      width: 150px; height: 150px; border-radius: 8px; object-fit: cover; margin-right: 20px;
+    }
+  </style>
+</head>
+<body class="bg-light">
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="dashboard.html">DGE Dashboard</a>
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="upload-electors.html">Upload Electors</a></li>
+        <li class="nav-item"><a class="nav-link" href="add-candidate.html">Add Candidate</a></li>
+        <li class="nav-item"><a class="nav-link" href="candidates.html">List Candidates</a></li>
+        <li class="nav-item"><a class="nav-link" href="set-period.html">Set Period</a></li>
+        <li class="nav-item">
+          <button class="btn btn-danger nav-link" id="logoutBtn">Logout</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <h2>Détails du Candidat</h2>
+  <div id="message"></div>
+  <div id="details" class="mt-3"></div>
+  <button id="generateCodeBtn" class="btn btn-secondary mt-3">Générer un nouveau code d'authentification</button>
+  <p id="newCode" class="mt-3" style="font-weight:bold;"></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+  });
+
+  const messageDiv = document.getElementById('message');
+  const detailsDiv = document.getElementById('details');
+  const newCodeP = document.getElementById('newCode');
+  const generateCodeBtn = document.getElementById('generateCodeBtn');
+
+  // Récupérer l'ID depuis l'URL (on suppose ?id=xxx)
+  const params = new URLSearchParams(window.location.search);
+  const candidateId = params.get('id');
+
+  // Si pas d'id => redirection
+  if (!candidateId) {
+    messageDiv.innerHTML = `<div class="alert alert-danger">Aucun ID de candidat fourni.</div>`;
+  }
+
+  // 1. Récupérer les détails
+  async function fetchCandidate() {
+    try {
+      const res = await fetch(`http://localhost:8000/candidats/get_candidate.php?id=${candidateId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.id) {
+        // Construire l'affichage
+        let html = `
+          <div class="d-flex">
+            <div>
+              ${
+                data.photo
+                  ? `<img src="${data.photo}" alt="${data.nom}" class="candidate-photo"/>`
+                  : `<div style="width:150px;height:150px;background:#ddd;display:flex;align-items:center;justify-content:center;border-radius:8px;">Aucune photo</div>`
+              }
+            </div>
+            <div>
+              <p><strong>Nom :</strong> ${data.nom}</p>
+              <p><strong>Prénom :</strong> ${data.prenom}</p>
+              <p><strong>Date de naissance :</strong> ${data.date_naissance}</p>
+              <p><strong>Email :</strong> ${data.email || 'N/A'}</p>
+              <p><strong>Téléphone :</strong> ${data.telephone || 'N/A'}</p>
+              <p><strong>Parti Politique :</strong> ${data.parti_politique || 'N/A'}</p>
+              <p><strong>Slogan :</strong> ${data.slogan || 'N/A'}</p>
+              <p><strong>URL :</strong> ${
+                data.url 
+                  ? `<a href="${data.url}" target="_blank">${data.url}</a>`
+                  : 'N/A'
+              }</p>
+            </div>
+          </div>
+        `;
+        detailsDiv.innerHTML = html;
+      } else {
+        messageDiv.innerHTML = `<div class="alert alert-danger">${data.message || 'Erreur lors de la récupération du candidat.'}</div>`;
+      }
+    } catch (err) {
+      messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de la récupération des détails du candidat.</div>`;
+    }
+  }
+
+  fetchCandidate();
+
+  // 2. Générer un nouveau code
+  generateCodeBtn.addEventListener('click', async () => {
+    newCodeP.innerHTML = '';
+    messageDiv.innerHTML = '';
+    try {
+      const res = await fetch('http://localhost:8000/candidats/generate_code.php', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ candidateId })
+      });
+      const data = await res.json();
+      if (data.newCode) {
+        newCodeP.innerHTML = `Nouveau code : ${data.newCode}`;
+        messageDiv.innerHTML = `<div class="alert alert-success">Nouveau code généré avec succès.</div>`;
+      } else {
+        messageDiv.innerHTML = `<div class="alert alert-danger">${data.message || 'Erreur lors de la génération du code.'}</div>`;
+      }
+    } catch (err) {
+      messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de la génération du nouveau code.</div>`;
+    }
+  });
+</script>
+</body>
+</html>
